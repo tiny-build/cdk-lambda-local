@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Nx cache
+.nx/cache
+.nx/workspace-data
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/settings.json
+*.swp
+
+# pnpm
+pnpm-debug.log
+
+# Environment
+.env*
+!.env.example
+.claude
