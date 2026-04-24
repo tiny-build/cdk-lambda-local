@@ -3,6 +3,7 @@ import cors, { type CorsOptions } from "cors";
 import express, { type Application, type Request, type Response } from "express";
 import { SUPPORTED_HTTP_METHODS, type SupportedHttpMethod } from "../constants/http";
 import type { LocalManifest } from "../types";
+import { applyLambdaEnv } from "../utils/env";
 import {
 	defaultWatchPaths,
 	inferRepoRootFromManifest,
@@ -78,6 +79,7 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 				const apiPath = req.path || route.path;
 				let authContext: Record<string, string> = {};
 				if (authorizer) {
+					applyLambdaEnv(authorizer.environment);
 					const authHandler = await loader.load(authorizer);
 					const authEvent = buildRequestAuthorizerEvent(req, {
 						path: apiPath,
@@ -104,6 +106,7 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 					authorizerContext: authContext,
 				});
 
+				applyLambdaEnv(lambda.environment);
 				const mainHandler = await loader.load(lambda);
 				const out = (await mainHandler(
 					proxyEvent,

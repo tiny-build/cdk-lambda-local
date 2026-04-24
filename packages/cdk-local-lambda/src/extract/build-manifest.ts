@@ -41,11 +41,8 @@ export async function extractManifest(opts: ExtractOptions): Promise<LocalManife
 			throw new Error(`extractManifest: expected AWS::Lambda::Function at ${logicalId}`);
 		}
 		const props = fn.Properties;
-		const functionName = props.FunctionName;
-		if (typeof functionName !== "string") {
-			throw new Error(`extractManifest: ${logicalId} missing string FunctionName`);
-		}
-		const functionKey = stageKey(functionName, opts.stage);
+		const functionName = typeof props.FunctionName === "string" ? props.FunctionName : null;
+		const functionKey = functionName ? stageKey(functionName, opts.stage) : logicalId;
 		const code = props.Code as { S3Key?: unknown } | undefined;
 		const assetDir = resolveAssetDir({
 			cdkOut: opts.cdkOut,
@@ -60,7 +57,7 @@ export async function extractManifest(opts: ExtractOptions): Promise<LocalManife
 		lambdas[functionKey] = {
 			functionKey,
 			lambdaLogicalId: logicalId,
-			lambdaFunctionName: functionName,
+			lambdaFunctionName: functionName ?? logicalId,
 			assetDir,
 			entry,
 			handler: splitHandler(props.Handler),

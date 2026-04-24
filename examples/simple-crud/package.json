@@ -1,0 +1,28 @@
+{
+  "name": "simple-crud-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "synth": "AWS_ENDPOINT_URL=http://localhost:4566 cdk synth --app 'tsx cdk/app.ts'",
+    "extract": "cdk-local extract --cdk-out cdk.out --stack SimpleCrudStack --stage dev --repo-root ../.. --out manifest.json",
+    "manifest": "pnpm run synth && pnpm run extract",
+    "serve": "cdk-local serve --manifest manifest.json --port 3001 --watch",
+    "dev": "pnpm run manifest && pnpm run serve",
+    "seed": "./scripts/seed.sh"
+  },
+  "dependencies": {
+    "@tiny-build/cdk-local-lambda": "workspace:*",
+    "@aws-sdk/client-dynamodb": "^3.750.0",
+    "@aws-sdk/client-s3": "^3.750.0",
+    "aws-cdk-lib": "^2.180.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "@types/node": "^22.13.5",
+    "aws-cdk": "^2.180.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3"
+  }
+}
