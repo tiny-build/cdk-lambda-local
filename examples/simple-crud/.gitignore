@@ -1,0 +1,7 @@
+node_modules/
+dist/
+cdk.out/
+data/
+manifest.json
+*.js
+*.d.ts

@@ -1,0 +1,22 @@
+meta {
+  name: Create Item Unauthorized
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/items
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Should fail",
+    "description": "No auth token provided"
+  }
+}

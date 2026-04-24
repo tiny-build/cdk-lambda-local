@@ -1,0 +1,23 @@
+meta {
+  name: Upload Attachment
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/items/{{itemId}}/attachment
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: {{authToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "filename": "notes.txt",
+    "content": "This is an attachment uploaded via Bruno"
+  }
+}
