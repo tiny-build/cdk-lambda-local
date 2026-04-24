@@ -1,0 +1,20 @@
+{
+  "name": "cdk-local-lambda",
+  "root": "packages/cdk-local-lambda",
+  "sourceRoot": "packages/cdk-local-lambda/src",
+  "targets": {
+    "build": {
+      "command": "pnpm exec tsup",
+      "options": { "cwd": "packages/cdk-local-lambda" },
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "format": {
+      "command": "oxfmt --check \"src/**/*.ts\"",
+      "options": { "cwd": "packages/cdk-local-lambda" }
+    },
+    "format:fix": {
+      "command": "oxfmt --write \"src/**/*.ts\"",
+      "options": { "cwd": "packages/cdk-local-lambda" }
+    }
+  }
+}
