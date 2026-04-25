@@ -9,7 +9,6 @@ export default defineConfig({
 		"bin/cdk-local": "src/bin/cdk-local.ts",
 	},
 	format: ["esm", "cjs"],
-	dts: true,
 	sourcemap: true,
 	clean: true,
 	target: "node22",
