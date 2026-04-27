@@ -6,17 +6,13 @@ const awsOverrides = process.env.AWS_ENDPOINT_URL
 	? {
 			endpoint: process.env.AWS_ENDPOINT_URL,
 			credentials: { accessKeyId: "test", secretAccessKey: "test" },
+			region: "us-east-1",
 			forcePathStyle: true,
 		}
 	: {};
 
 export function createDynamoDBClient(): DynamoDBClient {
-	return new DynamoDBClient({
-		...(process.env.AWS_ENDPOINT_URL && {
-			endpoint: process.env.AWS_ENDPOINT_URL,
-			credentials: { accessKeyId: "test", secretAccessKey: "test" },
-		}),
-	});
+	return new DynamoDBClient(awsOverrides);
 }
 
 export function createS3Client(): S3ClientType {

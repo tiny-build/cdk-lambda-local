@@ -42,13 +42,40 @@ jobs:
       - name: Build all packages
         run: pnpx nx run-many --target=build --all
 
+      - name: Compute release label
+        id: next_release
+        run: |
+          pnpm changeset status --output=.changeset-status.json || true
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          let label = 'pending-release';
+
+          try {
+            const status = JSON.parse(fs.readFileSync('.changeset-status.json', 'utf8'));
+            const releases = Array.isArray(status.releases) ? status.releases : [];
+
+            if (releases.length > 0) {
+              const publicReleases = releases.filter((release) => !release.private);
+              const targetReleases = publicReleases.length > 0 ? publicReleases : releases;
+              label = targetReleases
+                .map((release) => `${release.name}@${release.newVersion}`)
+                .join(', ');
+            }
+          } catch {
+            // Keep fallback label when there are no pending release entries.
+          }
+
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `label=${label}\n`);
+          NODE
+
       - name: Create Release PR or Publish
         id: changesets
         uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
-          title: "chore: version packages"
-          commit: "chore: version packages"
+          title: "ci: release ${{ steps.next_release.outputs.label }}"
+          commit: "ci: release ${{ steps.next_release.outputs.label }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Required for npm trusted publishing (OIDC) so npm publish exchanges

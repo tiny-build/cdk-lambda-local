@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -32,7 +32,8 @@
       "style": {
         "useConst": "error",
         "useTemplate": "error",
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useImportType": "off"
       },
       "suspicious": {
         "noExplicitAny": "error"

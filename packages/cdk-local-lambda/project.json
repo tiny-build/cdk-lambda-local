@@ -9,11 +9,11 @@
 			"outputs": ["{projectRoot}/dist"]
 		},
 		"format": {
-			"command": "oxfmt --check \"src/**/*.ts\"",
+			"command": "biome format \"src/**/*.ts\"",
 			"options": { "cwd": "packages/cdk-local-lambda" }
 		},
 		"format:fix": {
-			"command": "oxfmt --write \"src/**/*.ts\"",
+			"command": "biome format --write \"src/**/*.ts\"",
 			"options": { "cwd": "packages/cdk-local-lambda" }
 		}
 	}

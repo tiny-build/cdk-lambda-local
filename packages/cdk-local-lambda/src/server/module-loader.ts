@@ -4,23 +4,26 @@ import { dirname, join, normalize } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Handler } from "aws-lambda";
 import { buildSync } from "esbuild";
+import type { LogEntry } from "../logger/log-bus";
 import type { LocalLambda } from "../types";
-
 import { findAncestorWithNodeModules, findNearestNamedFile } from "../utils/path-search";
 
 let loadSeq = 0;
 
 export interface ModuleLoaderOptions {
 	readonly repoRoot?: string;
+	readonly onLog?: (entry: Omit<LogEntry, "time">) => void;
 }
 
 export class ModuleLoader {
 	private readonly cache = new Map<string, Promise<Handler>>();
 	private readonly deps = new Map<string, Set<string>>();
 	private readonly repoRoot: string;
+	private readonly onLog: ModuleLoaderOptions["onLog"];
 
 	constructor(opts?: ModuleLoaderOptions) {
 		this.repoRoot = opts?.repoRoot ?? process.cwd();
+		this.onLog = opts?.onLog;
 	}
 
 	private async bundleAndImportTs(
@@ -130,14 +133,22 @@ export class ModuleLoader {
 		}
 
 		const normalized = normalize(changedFile);
-		console.log(`[cdk-local] invalidating modules dependent on ${normalized}`);
+		this.onLog?.({
+			level: "debug",
+			source: "framework",
+			msg: `invalidating modules dependent on ${normalized}`,
+		});
 		let count = 0;
 		for (const [handlerPath, fileDeps] of this.deps) {
 			if (fileDeps.has(normalized)) {
 				this.cache.delete(handlerPath);
 				this.deps.delete(handlerPath);
 				count++;
-				console.log(`[cdk-local] invalidating handler "${handlerPath}" (changed: ${normalized})`);
+				this.onLog?.({
+					level: "debug",
+					source: "framework",
+					msg: `invalidating handler "${handlerPath}" (changed: ${normalized})`,
+				});
 			}
 		}
 		return count;

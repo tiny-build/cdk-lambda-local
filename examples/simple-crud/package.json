@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "synth": "AWS_ENDPOINT_URL=http://localhost:4566 cdk synth --app 'tsx cdk/app.ts'",
-    "extract": "cdk-local extract --cdk-out cdk.out --stack SimpleCrudStack --stage dev --repo-root ../.. --out manifest.json",
+    "extract": "cdk-local extract --cdk-out cdk.out --stack SimpleCrudStack --stage dev --repo-root ../.. --out .cdk-local/manifest.json",
     "manifest": "pnpm run synth && pnpm run extract",
-    "serve": "cdk-local serve --manifest manifest.json --port 3001 --watch",
+    "serve": "cdk-local serve --manifest .cdk-local/manifest.json --port 3001 --watch",
     "dev": "pnpm run manifest && pnpm run serve",
+    "init": "pnpm cdk-local init",
     "seed": "./scripts/seed.sh"
   },
   "dependencies": {
