@@ -1,5 +1,5 @@
 {
-  "name": "@tiny-build/cdk-local-lambda",
+  "name": "cdk-local-lambda",
   "version": "0.0.0",
   "private": true,
   "description": "Run an API Gateway + Lambda app locally over HTTP, driven entirely by cdk synth output.",
@@ -58,7 +58,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "readme_assets"
   ],
   "scripts": {
     "build": "tsup && pnpm run build:types",
