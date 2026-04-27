@@ -2,7 +2,7 @@
   "name": "cdk-lambda-local-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "tiny-build monorepo for @tiny-build/cdk-local-lambda",
+  "description": "tiny-build monorepo for cdk-local-lambda",
   "license": "MIT",
   "engines": {
     "node": ">=22",
