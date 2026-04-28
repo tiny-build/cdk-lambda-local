@@ -13,12 +13,13 @@ export function buildRequestAuthorizerEvent(
 	opts: {
 		readonly path: string;
 		readonly httpMethod: string;
-		readonly stage: string;
+		readonly stage: string | undefined;
 	},
 ): APIGatewayRequestAuthorizerEvent {
 	const headers = lowerCaseHeaderMap(req.headers);
 	const queryStringParameters = queryFromRequest(req);
-	const methodArn = `arn:aws:execute-api:us-east-1:000000000000:local/${opts.stage}/${opts.httpMethod}${opts.path}`;
+	const stage = opts.stage ?? "";
+	const methodArn = `arn:aws:execute-api:us-east-1:000000000000:local/${stage}/${opts.httpMethod}${opts.path}`;
 
 	return {
 		type: "REQUEST",
@@ -43,7 +44,7 @@ export function buildRequestAuthorizerEvent(
 				userAgent: req.get("user-agent") ?? "",
 			},
 			path: opts.path,
-			stage: opts.stage,
+			stage,
 			requestId: randomUUID(),
 			requestTimeEpoch: Date.now(),
 			resourceId: "local",
@@ -57,7 +58,7 @@ export function buildProxyEvent(
 	opts: {
 		readonly path: string;
 		readonly httpMethod: string;
-		readonly stage: string;
+		readonly stage: string | undefined;
 		readonly authorizerContext: Record<string, string>;
 	},
 ): APIGatewayProxyEvent {
@@ -92,7 +93,7 @@ export function buildProxyEvent(
 				userAgent: req.get("user-agent") ?? "",
 			},
 			path: opts.path,
-			stage: opts.stage,
+			stage: opts.stage ?? "",
 			requestId: randomUUID(),
 			requestTimeEpoch: Date.now(),
 			resourceId: "local",

@@ -6,7 +6,8 @@ export function splitHandler(handlerProp: unknown): string {
 	return idx === -1 ? handlerProp : handlerProp.slice(idx + 1);
 }
 
-export function stageKey(functionName: string, stage: string): string {
+export function stageKey(functionName: string, stage: string | undefined): string {
+	if (!stage) return functionName;
 	const needle = `-${stage}-`;
 	const idx = functionName.indexOf(needle);
 	if (idx === -1) return functionName;
