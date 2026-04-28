@@ -1,6 +1,6 @@
 # Simple CRUD Example
 
-A self-contained example demonstrating `cdk-lambda-local` with:
+A self-contained example demonstrating `aws-cdk-local-lambda` with:
 
 - **API Gateway** with 3 routes
 - **3 Lambda handlers** (create, get, upload attachment)

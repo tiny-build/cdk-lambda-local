@@ -53,9 +53,9 @@ importers:
       aws-cdk-lib:
         specifier: ^2.251.0
         version: 2.251.0(constructs@10.6.0)
-      cdk-lambda-local:
+      aws-cdk-local-lambda:
         specifier: workspace:*
-        version: link:../../packages/cdk-lambda-local
+        version: link:../../packages/aws-cdk-local-lambda
       constructs:
         specifier: ^10.6.0
         version: 10.6.0
@@ -79,7 +79,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
-  packages/cdk-lambda-local:
+  packages/aws-cdk-local-lambda:
     dependencies:
       chokidar:
         specifier: ^5.0.0

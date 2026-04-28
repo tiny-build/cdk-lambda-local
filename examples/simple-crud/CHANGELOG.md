@@ -5,4 +5,4 @@
 ### Patch Changes
 
 - Updated dependencies [ab12f8f]
-  - cdk-lambda-local@1.0.0
+  - aws-cdk-local-lambda@1.0.0

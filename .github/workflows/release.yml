@@ -56,7 +56,7 @@ jobs:
             const releases = Array.isArray(status.releases) ? status.releases : [];
 
             if (releases.length > 0) {
-              const target = releases.find((release) => release.name === 'cdk-lambda-local');
+              const target = releases.find((release) => release.name === 'aws-cdk-local-lambda');
               if (target) {
                 label = `${target.name}@${target.newVersion}`;
               }

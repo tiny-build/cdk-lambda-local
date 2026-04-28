@@ -1,16 +1,16 @@
 <div align="center">
 
-<img src="readme-assets/cdk-local.png" alt="cdk-lambda-local" width="180" />
+<img src="readme-assets/cdk-local.png" alt="aws-cdk-local-lambda" width="180" />
 
-# cdk-lambda-local
+# aws-cdk-local-lambda
 
 **Run your CDK API Gateway + Lambda stack locally over HTTP - no mocks, no handler registry.**
 Reads `cdk synth` output directly and boots a local Express server that mirrors your deployed routes, with hot reload.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/tiny-build/cdk-lambda-local/release.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI&labelColor=7fc5e1&color=fed11e)](https://github.com/tiny-build/cdk-lambda-local/actions/workflows/release.yml)
-[![npm version](https://img.shields.io/npm/v/cdk-lambda-local?style=for-the-badge&logo=npm&logoColor=white&label=npm&labelColor=7fc5e1&color=f99933)](https://www.npmjs.com/package/cdk-lambda-local)
-[![npm downloads](https://img.shields.io/npm/dm/cdk-lambda-local?style=for-the-badge&logo=npm&logoColor=white&label=downloads&labelColor=7fc5e1&color=fed11e)](https://www.npmjs.com/package/cdk-lambda-local)
-[![GitHub stars](https://img.shields.io/github/stars/tiny-build/cdk-lambda-local?style=for-the-badge&logo=github&logoColor=white&labelColor=7fc5e1&color=f99933)](https://github.com/tiny-build/cdk-lambda-local/stargazers)
+[![CI](https://img.shields.io/github/actions/workflow/status/tiny-build/aws-cdk-local-lambda/release.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI&labelColor=7fc5e1&color=fed11e)](https://github.com/tiny-build/aws-cdk-local-lambda/actions/workflows/release.yml)
+[![npm version](https://img.shields.io/npm/v/aws-cdk-local-lambda?style=for-the-badge&logo=npm&logoColor=white&label=npm&labelColor=7fc5e1&color=f99933)](https://www.npmjs.com/package/aws-cdk-local-lambda)
+[![npm downloads](https://img.shields.io/npm/dm/aws-cdk-local-lambda?style=for-the-badge&logo=npm&logoColor=white&label=downloads&labelColor=7fc5e1&color=fed11e)](https://www.npmjs.com/package/aws-cdk-local-lambda)
+[![GitHub stars](https://img.shields.io/github/stars/tiny-build/aws-cdk-local-lambda?style=for-the-badge&logo=github&logoColor=white&labelColor=7fc5e1&color=f99933)](https://github.com/tiny-build/aws-cdk-local-lambda/stargazers)
 
 ### Built with
 
@@ -33,7 +33,7 @@ Reads `cdk synth` output directly and boots a local Express server that mirrors 
 
 ## Why this exists
 
-Iterating on a CDK-deployed API usually means waiting for `cdk deploy`, or wiring up SAM/LocalStack with a handler registry that drifts from your real stack. `cdk-lambda-local` skips all of that:
+Iterating on a CDK-deployed API usually means waiting for `cdk deploy`, or wiring up SAM/LocalStack with a handler registry that drifts from your real stack. `aws-cdk-local-lambda` skips all of that:
 
 - **Reads `cdk synth` directly** - your stack template is the source of truth.
 - **Real Express server** - no mocks, no registry, no fake invoke.
@@ -43,11 +43,11 @@ Iterating on a CDK-deployed API usually means waiting for `cdk deploy`, or wirin
 ## Install
 
 ```bash
-npm install cdk-lambda-local
+npm install aws-cdk-local-lambda
 ```
 or
 ```bash
-pnpm add cdk-lambda-local
+pnpm add aws-cdk-local-lambda
 ```
 
 ## Quickstart
@@ -64,7 +64,7 @@ The wizard will:
 1. **Auto-detect** your CDK app (looks for `cdk.json` + `aws-cdk-lib`).
 2. **List stacks** via `cdk ls` and let you pick one.
 3. **Prompt** for stage, log level, and log output (stdout vs file).
-4. **Install** `cdk-lambda-local` as a dev dependency using your detected package manager (npm / pnpm / yarn / bun).
+4. **Install** `aws-cdk-local-lambda` as a dev dependency using your detected package manager (npm / pnpm / yarn / bun).
 5. **Run `cdk synth`** and extract the manifest to `.cdk-local/manifest.json`.
 6. **Persist** your choices to `.cdk-local/config.json` and add `.cdk-local/` to `.gitignore`.
 7. **Boot** the local server on port `3001` with hot reload.

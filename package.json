@@ -1,7 +1,7 @@
 {
-  "name": "cdk-lambda-local-monorepo",
+  "name": "aws-cdk-local-lambda-monorepo",
   "version": "0.0.0",
-  "description": "tiny-build monorepo for cdk-lambda-local",
+  "description": "tiny-build monorepo for aws-cdk-local-lambda",
   "license": "MIT",
   "engines": {
     "node": ">=22",
