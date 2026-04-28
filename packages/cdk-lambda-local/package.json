@@ -1,5 +1,5 @@
 {
-  "name": "cdk-local-lambda",
+  "name": "cdk-lambda-local",
   "version": "0.0.0",
   "license": "MIT",
   "description": "Run an API Gateway + Lambda app locally over HTTP, driven entirely by cdk synth output.",
@@ -103,10 +103,10 @@
     "node": ">=22.14"
   },
   "publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	},
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
-		"url": "https://github.com/tiny-build/cdk-lambda-local"
-	}
+    "url": "https://github.com/tiny-build/cdk-lambda-local"
+  }
 }

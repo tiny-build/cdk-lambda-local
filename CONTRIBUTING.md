@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for contributing to cdk-local-lambda.
+Thank you for contributing to cdk-lambda-local.
 
 This document covers contribution best practices, branching strategies, and pull request expectations.
 For full local setup and release operations, see DEVELOPMENT.md.
@@ -55,7 +55,7 @@ type(optional-scope): subject
 
 Examples:
 
-- feat(cdk-local-lambda): add route validation
+- feat(cdk-lambda-local): add route validation
 - fix(server): keep case-insensitive headers
 - docs: update contributing guide
 

@@ -15,7 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1037.0",
     "@aws-sdk/client-s3": "^3.1037.0",
-    "cdk-local-lambda": "workspace:*",
+    "cdk-lambda-local": "workspace:*",
     "aws-cdk-lib": "^2.251.0",
     "constructs": "^10.6.0"
   },

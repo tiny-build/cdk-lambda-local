@@ -57,7 +57,7 @@ export class ModuleLoader {
 			Object.keys(result.metafile?.inputs ?? {}).map((f) => normalize(join(absWorkingDir, f))),
 		);
 		const cacheBase = findAncestorWithNodeModules(absPath) ?? this.repoRoot;
-		const cacheDir = join(cacheBase, "node_modules", ".cache", "cdk-local-lambda");
+		const cacheDir = join(cacheBase, "node_modules", ".cache", "cdk-lambda-local");
 		mkdirSync(cacheDir, { recursive: true });
 		const tmp = join(
 			cacheDir,
