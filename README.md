@@ -20,8 +20,6 @@ Reads `cdk synth` output directly and boots a local Express server that mirrors 
 ![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-f99933?style=for-the-badge&logo=awslambda&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-7fc5e1?style=for-the-badge&logo=express&logoColor=white)
 ![esbuild](https://img.shields.io/badge/esbuild-fed11e?style=for-the-badge&logo=esbuild&logoColor=black)
-![Pino](https://img.shields.io/badge/Pino-7fc5e1?style=for-the-badge&logo=pino&logoColor=white)
-![Ink](https://img.shields.io/badge/Ink-7fc5e1?style=for-the-badge&logo=react&logoColor=white)
 ![Nx](https://img.shields.io/badge/Nx-f99933?style=for-the-badge&logo=nx&logoColor=white)
 ![pnpm](https://img.shields.io/badge/pnpm-fed11e?style=for-the-badge&logo=pnpm&logoColor=black)
 ![Biome](https://img.shields.io/badge/Biome-7fc5e1?style=for-the-badge&logo=biome&logoColor=white)
