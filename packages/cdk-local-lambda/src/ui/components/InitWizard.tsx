@@ -17,7 +17,7 @@ import {
 } from "../detect-package-manager";
 import { addToGitignore } from "../update-gitignore";
 
-const PACKAGE_NAME = "@tiny-build/cdk-local-lambda";
+const PACKAGE_NAME = "cdk-local-lambda";
 
 function loadDotEnv(dir: string): Record<string, string> {
 	const envPath = join(dir, ".env");

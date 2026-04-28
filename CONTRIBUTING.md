@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for contributing to @tiny-build/cdk-local-lambda.
+Thank you for contributing to cdk-local-lambda.
 
 This document covers contribution best practices, branching strategies, and pull request expectations.
 For full local setup and release operations, see DEVELOPMENT.md.

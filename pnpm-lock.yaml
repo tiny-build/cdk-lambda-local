@@ -50,12 +50,12 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1037.0
         version: 3.1037.0
-      '@tiny-build/cdk-local-lambda':
-        specifier: workspace:*
-        version: link:../../packages/cdk-local-lambda
       aws-cdk-lib:
         specifier: ^2.251.0
         version: 2.251.0(constructs@10.6.0)
+      cdk-local-lambda:
+        specifier: workspace:*
+        version: link:../../packages/cdk-local-lambda
       constructs:
         specifier: ^10.6.0
         version: 10.6.0
