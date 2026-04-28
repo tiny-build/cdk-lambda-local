@@ -56,11 +56,10 @@ jobs:
             const releases = Array.isArray(status.releases) ? status.releases : [];
 
             if (releases.length > 0) {
-              const publicReleases = releases.filter((release) => !release.private);
-              const targetReleases = publicReleases.length > 0 ? publicReleases : releases;
-              label = targetReleases
-                .map((release) => `${release.name}@${release.newVersion}`)
-                .join(', ');
+              const target = releases.find((release) => release.name === 'cdk-lambda-local');
+              if (target) {
+                label = `${target.name}@${target.newVersion}`;
+              }
             }
           } catch {
             // Keep fallback label when there are no pending release entries.
