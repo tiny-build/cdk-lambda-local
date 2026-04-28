@@ -7,7 +7,7 @@
 **Run an API Gateway + Lambda app locally over HTTP, driven entirely by `cdk synth` output.**
 No handler registry. No mocks. Hot reload on save.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/tiny-build/aws-cdk-local-lambda/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI&labelColor=7fc5e1&color=fed11e)](https://github.com/tiny-build/aws-cdk-local-lambda/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/tiny-build/aws-cdk-local-lambda/release.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI&labelColor=7fc5e1&color=fed11e)](https://github.com/tiny-build/aws-cdk-local-lambda/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/aws-cdk-local-lambda?style=for-the-badge&logo=npm&logoColor=white&label=npm&labelColor=7fc5e1&color=f99933)](https://www.npmjs.com/package/aws-cdk-local-lambda)
 [![npm downloads](https://img.shields.io/npm/dm/aws-cdk-local-lambda?style=for-the-badge&logo=npm&logoColor=white&label=downloads&labelColor=7fc5e1&color=fed11e)](https://www.npmjs.com/package/aws-cdk-local-lambda)
 [![GitHub stars](https://img.shields.io/github/stars/tiny-build/aws-cdk-local-lambda?style=for-the-badge&logo=github&logoColor=white&labelColor=7fc5e1&color=f99933)](https://github.com/tiny-build/aws-cdk-local-lambda/stargazers)
@@ -42,65 +42,72 @@ pnpm add aws-cdk-local-lambda
 
 > Requires **Node.js ≥ 22.14**.
 
-## Get started in one command
+## Quickstart
 
-> [!TIP]
-> The fastest way in is `npx cdk-local init` - an interactive wizard that installs the package, runs `cdk synth`, extracts the manifest, and boots the server.
+The recommended setup is a few scripts in your `package.json`. See the [simple-crud example](https://github.com/tiny-build/aws-cdk-local-lambda/tree/main/examples/simple-crud) for a complete working reference.
 
-```bash
-npx cdk-local init
+```json
+{
+  "scripts": {
+    "synth": "cdk synth --app 'tsx cdk/app.ts'",
+    "extract": "cdk-local extract --cdk-out cdk.out --stack MyStack --stage dev --out .cdk-local/manifest.json",
+    "manifest": "npm run synth && npm run extract",
+    "serve": "cdk-local serve --manifest .cdk-local/manifest.json --port 3001 --watch",
+    "dev": "npm run manifest && npm run serve"
+  }
+}
 ```
 
-The wizard:
+Then:
 
-1. Auto-detects your CDK app (`cdk.json` + `aws-cdk-lib`). Prompts you to pick if multiple are found.
-2. Runs `cdk ls` and lets you pick a stack.
-3. Prompts for **stage**, **log level** (`trace` → `error`), and **log output** (`stdout` or file at `.cdk-local/logs/dev.log`).
-4. Detects your package manager (npm / pnpm / yarn / bun) and installs `aws-cdk-local-lambda` as a dev dependency. Skips if already installed.
-5. Runs `cdk synth` and extracts to `.cdk-local/manifest.json`.
-6. Writes your choices to `.cdk-local/config.json` and appends `.cdk-local/` to `.gitignore`.
-7. Starts the dev server on port `3001` with hot reload and the live dashboard.
+```bash
+npm run dev
+```
 
-> [!NOTE]
-> `init` reads variables from a `.env` next to your `cdk.json` (if present) when invoking `cdk ls` / `cdk synth`. Subsequent runs can just use `cdk-local dev` - `dev` and `serve` will pick up `stack`, `stage`, and `manifestPath` from `.cdk-local/config.json`.
+> Add `.cdk-local/` or whatever path you choose to your `.gitignore` - it holds the generated manifest and would be machine-specific.
 
-> [!IMPORTANT]
-> `init` shells out to the AWS CDK CLI. Make sure `cdk` is available on your `PATH` (see the [AWS CDK Getting Started guide](https://docs.aws.amazon.com/cdk/v2/guide/getting-started.html)) or that the wizard is invoked inside a project where `cdk` resolves.
+`cdk synth` shells out to the AWS CDK CLI. Make sure `cdk` is available on your `PATH` (see the [AWS CDK Getting Started guide](https://docs.aws.amazon.com/cdk/v2/guide/getting-started.html)).
 
 ## CLI reference
 
 ```
-cdk-local init
-cdk-local dev     [--cdk-out <dir>] [--stack <name>] [--stage <env>] [--port 3001] [--no-watch]
-cdk-local extract  --cdk-out <dir>   --stack <name>   --stage <env>  [--out <file>] [--synth]
-cdk-local serve   [--manifest <file>] [--port 3001] [--watch]
+cdk-local dev     --cdk-out <dir> --stack <name> [--stage <env>] [--port 3001] [--no-watch] [--repo-root <dir>] [--quiet]
+cdk-local extract --cdk-out <dir> --stack <name> [--stage <env>] [--out <file>] [--synth] [--repo-root <dir>] [--quiet]
+cdk-local serve   --manifest <file> [--port 3001] [--watch] [--quiet]
 ```
 
-| Command   | Purpose                                                              | Watch default      |
-|-----------|----------------------------------------------------------------------|--------------------|
-| `init`    | Interactive setup wizard: install + synth + extract + serve.         | on                 |
-| `dev`     | `extract` + `serve` in one step. Reads defaults from config.         | on (`--no-watch`)  |
-| `extract` | Writes a v2 `LocalManifest` JSON to `--out` (or stdout).             | n/a                |
-| `serve`   | Reads a pre-extracted manifest and starts the server.                | opt-in (`--watch`) |
+| Command   | Purpose                                                   | Watch default      |
+|-----------|-----------------------------------------------------------|--------------------|
+| `dev`     | `extract` + `serve` in one step.                          | on (`--no-watch`)  |
+| `extract` | Writes a `LocalManifest` JSON to `--out` (or stdout).     | n/a                |
+| `serve`   | Reads a pre-extracted manifest and starts the server.     | opt-in (`--watch`) |
 
-Pass `--synth` to `extract` to run `cdk synth` first (useful after cloning to a new path, since esbuild embeds absolute source paths in bundles).
+Pass `--synth` to `extract` to run `cdk synth` first (useful after cloning, since esbuild embeds absolute source paths in bundles).
 
-### Config file
+### `extract` options
 
-After `init`, your project gets a `.cdk-local/config.json` like:
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--cdk-out <dir>` | yes | Path to the `cdk.out` directory |
+| `--stack <name>` | yes | CloudFormation stack name |
+| `--stage <env>` | no | Stage suffix used to strip prefixes from Lambda function names (e.g. `dev`). Omit if your function names have no stage prefix. |
+| `--out <file>` | no | Output path for the manifest JSON (default: stdout) |
+| `--synth` | no | Run `cdk synth` before extracting |
+| `--repo-root <dir>` | no | Repo root for resolving handler source paths (default: cwd) |
+| `--quiet` | no | Suppress framework log output (file changes, module invalidations, etc.) |
 
-```json
-{
-  "cdkRoot": "/abs/path/to/cdk-app",
-  "stack": "MyStack",
-  "stage": "dev",
-  "logLevel": "info",
-  "logOutput": "stdout",
-  "manifestPath": ".cdk-local/manifest.json"
-}
-```
+### `serve` options
 
-`dev` and `serve` fall back to these values when CLI flags are omitted.
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--manifest <file>` | yes | Path to a manifest JSON produced by `extract` |
+| `--port <n>` | no | Port to listen on (default: `3001`) |
+| `--watch` | no | Enable hot reload on handler file changes |
+| `--quiet` | no | Suppress framework log output |
+
+### `dev` options
+
+Accepts all `extract` options plus `--port`, `--no-watch`, and `--quiet`.
 
 ## Hot reload
 
@@ -108,9 +115,50 @@ On any file change under the watched paths (default: derived from each Lambda's 
 
 No process restart. Recovery from bundle markers happens at `extract` time only.
 
-## Route specificity
+## Programmatic usage
 
-Literal routes win over parameterized routes at the same depth. For example, if both `/users/me` and `/users/{id}` are registered, `GET /users/me` matches the literal handler, while `GET /users/42` falls through to the parameterized one - matching API Gateway's behavior.
+```ts
+import { extractManifest } from "aws-cdk-local-lambda/extract";
+import { createLocalApp } from "aws-cdk-local-lambda/server";
+
+const manifest = await extractManifest({
+  cdkOut: "cdk.out",   // path to cdk.out directory
+  stack: "MyStack",
+  stage: "dev",
+  repoRoot: process.cwd(),           // optional: root for resolving handler paths
+  onWarning: (msg) => console.warn(msg),
+});
+
+const { app, routes, stop } = await createLocalApp({
+  manifest,
+  watch: true,
+  corsOptions: { origin: "*" },      // optional: passed directly to the cors middleware
+  bodyLimit: "10mb",                 // optional: express body-parser limit (default: "1mb")
+  healthPath: "/_health",            // optional: adds a 200 OK health endpoint
+  onReload: (path, n) => console.log(`reloaded ${n} handlers after ${path}`),
+  onError: (err, req) => console.error(req.path, err),
+});
+
+app.listen(3001);
+// routes is a readonly string[] of all registered paths, e.g. ["GET /items", "POST /items"]
+// call stop() to drain the watcher and release resources
+```
+
+`createLocalApp` does not call `app.listen` - the caller owns the port and server lifecycle.
+
+### Controlling framework log output
+
+By default the framework logs file change detections, module invalidations, and other internal events to stderr. Pass `onFrameworkLog` to redirect or silence them. The "listening on port" line and your Lambda handler logs are always printed regardless.
+
+```ts
+// silence all framework logs
+createLocalApp({ manifest, onFrameworkLog: () => {} });
+
+// pipe to your own logger
+createLocalApp({ manifest, onFrameworkLog: (msg) => myLogger.debug(msg) });
+```
+
+The same option is available on `extractManifest` to suppress entry-recovery logs during the extract phase.
 
 ## Resources
 - [Example stack](https://github.com/tiny-build/aws-cdk-local-lambda/tree/main/examples/simple-crud)
@@ -125,3 +173,7 @@ Literal routes win over parameterized routes at the same depth. For example, if 
 ## License
 
 [MIT](https://github.com/tiny-build/aws-cdk-local-lambda/blob/main/LICENSE) © tiny-build
+
+---
+
+> This project is not affiliated with, endorsed by, or sponsored by Amazon Web Services (AWS) in any way. AWS, CDK, Lambda, and API Gateway are trademarks of Amazon.com, Inc. or its affiliates. All trademarks and copyrights referenced in this project belong to their respective owners.

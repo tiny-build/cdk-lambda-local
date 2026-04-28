@@ -52,33 +52,34 @@ pnpm add aws-cdk-local-lambda
 
 ## Quickstart
 
-> [!TIP]
-> **First time?** Just run `npx cdk-local init` from your CDK project root. The interactive wizard handles install, `cdk synth`, manifest extraction, and starts the dev server - all in one flow.
+The recommended setup is a few scripts in your `package.json`. See the [simple-crud example](examples/simple-crud/package.json) for a complete working setup.
 
-```bash
-npx cdk-local init
+```json
+{
+  "scripts": {
+    "synth": "cdk synth --app 'tsx cdk/app.ts'",
+    "extract": "cdk-local extract --cdk-out cdk.out --stack MyStack --stage dev --out .cdk-local/manifest.json",
+    "manifest": "npm run synth && npm run extract",
+    "serve": "cdk-local serve --manifest .cdk-local/manifest.json --port 3001 --watch",
+    "dev": "npm run manifest && npm run serve"
+  }
+}
 ```
 
-The wizard will:
+Then run:
 
-1. **Auto-detect** your CDK app (looks for `cdk.json` + `aws-cdk-lib`).
-2. **List stacks** via `cdk ls` and let you pick one.
-3. **Prompt** for stage, log level, and log output (stdout vs file).
-4. **Install** `aws-cdk-local-lambda` as a dev dependency using your detected package manager (npm / pnpm / yarn / bun).
-5. **Run `cdk synth`** and extract the manifest to `.cdk-local/manifest.json`.
-6. **Persist** your choices to `.cdk-local/config.json` and add `.cdk-local/` to `.gitignore`.
-7. **Boot** the local server on port `3001` with hot reload.
+```bash
+npm run dev
+```
 
 > [!NOTE]
-> After `init`, subsequent runs only need `npx cdk-local dev` (or `serve` if your routes haven't changed) - your config is read from `.cdk-local/config.json`.
+> Add `.cdk-local/` or whatever path you choose to your `.gitignore` - it holds the generated manifest and would be machine-specific.
 
 ## CLI reference
 
-If you'd rather wire things up manually, the lower-level commands are available too:
-
-### All-in-one: extract + serve (uses .cdk-local/config.json if present)
+### All-in-one: extract + serve
 ```bash
-npx cdk-local dev --stack MyStack --stage dev --port 3001
+npx cdk-local dev --cdk-out cdk.out --stack MyStack --stage dev --port 3001
 ```
 
 ### Step 1 - parse cdk.out into a manifest file
@@ -95,20 +96,46 @@ npx cdk-local serve --manifest .cdk-local/manifest.json --port 3001 --watch
 
 | Command   | Purpose                                                              | Watch default                |
 |-----------|----------------------------------------------------------------------|------------------------------|
-| `init`    | Interactive wizard: install + `cdk synth` + extract + serve          | on                           |
 | `dev`     | `extract` + `serve` in one step                                      | on (`--no-watch` to disable) |
 | `extract` | Parse `cdk.out` → `LocalManifest` JSON (pass `--synth` to run synth) | n/a                          |
 | `serve`   | Boot Express from a pre-built manifest                               | opt-in (`--watch`)           |
 
-> [!IMPORTANT]
-> `init` shells out to the AWS CDK CLI. Make sure `cdk` is available on your `PATH` (see the [AWS CDK Getting Started guide](https://docs.aws.amazon.com/cdk/v2/guide/getting-started.html)) or that the wizard is invoked inside a project where `cdk` resolves.
+### `extract` options
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--cdk-out <dir>` | yes | Path to the `cdk.out` directory |
+| `--stack <name>` | yes | CloudFormation stack name |
+| `--stage <env>` | no | Stage suffix used to strip prefixes from Lambda function names (e.g. `dev`). Omit if your function names have no stage prefix. |
+| `--out <file>` | no | Output path for the manifest JSON (default: stdout) |
+| `--synth` | no | Run `cdk synth` before extracting |
+| `--repo-root <dir>` | no | Repo root for resolving handler source paths (default: cwd) |
+| `--quiet` | no | Suppress framework log output (file changes, module invalidations, etc.) |
+
+### `serve` options
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--manifest <file>` | yes | Path to a manifest JSON produced by `extract` |
+| `--port <n>` | no | Port to listen on (default: `3001`) |
+| `--watch` | no | Enable hot reload on handler file changes |
+| `--quiet` | no | Suppress framework log output |
+
+### `dev` options
+
+Accepts all `extract` options plus `--port`, `--no-watch`, and `--quiet`.
 
 ## Contributing
 
 Contributions are welcome - small PRs, clear commits, conventional commits enforced.
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - pull request workflow and expectations
+- [ARCHITECTURE.md](ARCHITECTURE.md) - high level overview of what the package does internally
 
 ## License
 
 [MIT](LICENSE) © tiny-build
+
+---
+
+> This project is not affiliated with, endorsed by, or sponsored by Amazon Web Services (AWS) in any way. AWS, CDK, Lambda, and API Gateway are trademarks of Amazon.com, Inc. or its affiliates. All trademarks and copyrights referenced in this project belong to their respective owners.
