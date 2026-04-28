@@ -3,7 +3,6 @@
 Thank you for contributing to cdk-lambda-local.
 
 This document covers contribution best practices, branching strategies, and pull request expectations.
-For full local setup and release operations, see DEVELOPMENT.md.
 
 ## Quick Start
 
@@ -72,7 +71,6 @@ Before opening a PR:
 1. Sync your branch with main.
 2. Run lint, typecheck, build, and format.
 3. Add or update tests when behavior changes.
-4. Add a changeset for user-facing changes.
 
 PR quality checklist:
 

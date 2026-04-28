@@ -54,6 +54,28 @@
         "types": "./dist/types.d.ts",
         "default": "./dist/types.cjs"
       }
+    },
+    "./logger": {
+      "source": "./src/logger/index.ts",
+      "import": {
+        "types": "./dist/logger/index.d.ts",
+        "default": "./dist/logger/index.js"
+      },
+      "require": {
+        "types": "./dist/logger/index.d.ts",
+        "default": "./dist/logger/index.cjs"
+      }
+    },
+    "./ui": {
+      "source": "./src/ui/index.ts",
+      "import": {
+        "types": "./dist/ui/index.d.ts",
+        "default": "./dist/ui/index.js"
+      },
+      "require": {
+        "types": "./dist/ui/index.d.ts",
+        "default": "./dist/ui/index.cjs"
+      }
     }
   },
   "files": [
