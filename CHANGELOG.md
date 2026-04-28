@@ -1,5 +1,11 @@
 # aws-cdk-local-lambda
 
+## 1.0.0
+
+### Major Changes
+
+- bd2a78a: First Release
+
 ## 1.0.1
 
 ### Patch Changes
