@@ -1,7 +1,7 @@
 {
   "name": "simple-crud-example",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "synth": "AWS_ENDPOINT_URL=http://localhost:4566 cdk synth --app 'tsx cdk/app.ts'",

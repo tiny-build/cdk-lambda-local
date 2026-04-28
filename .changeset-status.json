@@ -1,0 +1,32 @@
+{
+  "changesets": [
+    {
+      "releases": [
+        {
+          "name": "cdk-lambda-local",
+          "type": "major"
+        }
+      ],
+      "summary": "first release yay",
+      "id": "clear-lemons-know"
+    }
+  ],
+  "releases": [
+    {
+      "name": "cdk-lambda-local",
+      "type": "major",
+      "oldVersion": "0.0.0",
+      "changesets": [
+        "clear-lemons-know"
+      ],
+      "newVersion": "1.0.0"
+    },
+    {
+      "name": "simple-crud-example",
+      "type": "patch",
+      "oldVersion": "0.0.0",
+      "changesets": [],
+      "newVersion": "0.0.1"
+    }
+  ]
+}
