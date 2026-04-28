@@ -29,7 +29,7 @@ What actually happened. Include any error output.
 
 - OS: [e.g. macOS 15, Ubuntu 22.04]
 - Node version: [e.g. 24.0.0] (`node --version`)
-- cdk-local-lambda version: [e.g. 0.1.0]
+- cdk-lambda-local version: [e.g. 0.1.0]
 - Install method: [npm / built from source]
 
 ## Additional context

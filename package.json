@@ -1,7 +1,7 @@
 {
   "name": "cdk-lambda-local-monorepo",
   "version": "0.0.0",
-  "description": "tiny-build monorepo for cdk-local-lambda",
+  "description": "tiny-build monorepo for cdk-lambda-local",
   "license": "MIT",
   "engines": {
     "node": ">=22",
@@ -13,8 +13,7 @@
     "lint": "pnpx nx run-many --target=lint --all",
     "typecheck": "pnpx nx run-many --target=typecheck --all",
     "format": "pnpx biome format --write .",
-    "changeset": "node scripts/changeset.mjs",
-    "changeset:interactive": "changeset",
+    "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
     "prepare": "husky"
