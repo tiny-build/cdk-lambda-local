@@ -1,22 +1,22 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { LogEntry } from "../logger/log-bus.js";
-import type { LocalLambda, LocalManifest, LocalRoute } from "../types.js";
-import { normalizeEnv, splitHandler, stageKey } from "../utils/manifest.js";
-import { sortRecord } from "../utils/object.js";
-import type { CfnResources } from "./cfn-types.js";
-import { buildAuthorizerLambdaMap } from "./parse-authorizers.js";
-import { parseApiGatewayMethods } from "./parse-routes.js";
-import { recoverEntry } from "./recover-entry.js";
-import { resolveAssetDir } from "./resolve-asset.js";
+import type { LocalLambda, LocalManifest, LocalRoute } from "../types";
+
+import { normalizeEnv, splitHandler, stageKey } from "../utils/manifest";
+import { sortRecord } from "../utils/object";
+import type { CfnResources } from "./cfn-types";
+import { buildAuthorizerLambdaMap } from "./parse-authorizers";
+import { parseApiGatewayMethods } from "./parse-routes";
+import { recoverEntry } from "./recover-entry";
+import { resolveAssetDir } from "./resolve-asset";
 
 export interface ExtractOptions {
 	readonly cdkOut: string;
 	readonly stack: string;
-	readonly stage: string;
+	readonly stage?: string;
 	readonly repoRoot?: string;
 	readonly onWarning?: (message: string) => void;
-	readonly onLog?: (entry: Omit<LogEntry, "time">) => void;
+	readonly onFrameworkLog?: (message: string) => void;
 }
 
 export async function extractManifest(opts: ExtractOptions): Promise<LocalManifest> {
@@ -54,7 +54,7 @@ export async function extractManifest(opts: ExtractOptions): Promise<LocalManife
 			assetDir,
 			repoRoot,
 			onWarning: opts.onWarning,
-			onLog: opts.onLog,
+			onFrameworkLog: opts.onFrameworkLog,
 		});
 		lambdas[functionKey] = {
 			functionKey,

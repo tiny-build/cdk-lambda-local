@@ -1,9 +1,8 @@
 import { normalize } from "node:path";
 
 import chokidar, { type FSWatcher } from "chokidar";
-import { WATCHER_IGNORED_PATTERNS } from "../constants/watcher.js";
-import type { LogEntry } from "../logger/log-bus.js";
-import type { ModuleLoader } from "./module-loader.js";
+import { WATCHER_IGNORED_PATTERNS } from "../constants/watcher";
+import type { ModuleLoader } from "./module-loader";
 
 export interface StartWatcherOptions {
 	readonly paths: readonly string[];
@@ -12,7 +11,7 @@ export interface StartWatcherOptions {
 	readonly onManifestChange?: (path: string) => void;
 	readonly manifestPath?: string;
 	readonly debounceMs?: number;
-	readonly onLog?: (entry: Omit<LogEntry, "time">) => void;
+	readonly onFrameworkLog?: (message: string) => void;
 }
 
 export async function startWatcher(opts: StartWatcherOptions): Promise<() => Promise<void>> {
@@ -45,11 +44,7 @@ export async function startWatcher(opts: StartWatcherOptions): Promise<() => Pro
 
 	watcher.on("all", (_event, p) => {
 		lastPath = p;
-		opts.onLog?.({
-			level: "debug",
-			source: "framework",
-			msg: `file change detected: ${p} (event: ${_event})`,
-		});
+		opts.onFrameworkLog?.(`[cdk-local] file change detected: ${p} (event: ${_event})`);
 		if (timer) clearTimeout(timer);
 		timer = setTimeout(fire, debounceMs);
 	});

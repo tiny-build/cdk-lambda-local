@@ -1,12 +1,9 @@
-import { randomUUID } from "node:crypto";
 import type { APIGatewayProxyResult } from "aws-lambda";
 import cors, { type CorsOptions } from "cors";
 import express, { type Application, type Request, type Response } from "express";
-import { SUPPORTED_HTTP_METHODS, type SupportedHttpMethod } from "../constants/http.js";
-import { lambdaLogStore, patchConsole } from "../logger/console-patch.js";
-import type { LogBus, LogEntry } from "../logger/log-bus.js";
-import type { LocalManifest } from "../types.js";
-import { applyLambdaEnv } from "../utils/env.js";
+import { SUPPORTED_HTTP_METHODS, type SupportedHttpMethod } from "../constants/http";
+import type { LocalManifest } from "../types";
+import { applyLambdaEnv } from "../utils/env";
 import {
 	defaultWatchPaths,
 	inferRepoRootFromManifest,
@@ -21,6 +18,7 @@ import { sendProxyResult } from "./response-writer.js";
 
 export interface ServerOptions {
 	readonly manifest: LocalManifest;
+	/** When set with {@link onManifestChange}, this file is watched so topology edits can surface. */
 	readonly manifestPath?: string;
 	readonly watch?: boolean;
 	readonly watchPaths?: readonly string[];
@@ -31,8 +29,12 @@ export interface ServerOptions {
 	readonly onReload?: (changedPath: string, invalidatedCount: number) => void;
 	readonly onError?: (err: unknown, req: Request) => void;
 	readonly onManifestChange?: (path: string) => void;
-	readonly onLog?: (entry: Omit<LogEntry, "time">) => void;
-	readonly logBus?: LogBus;
+	/**
+	 * Called for each framework-level log line (file changes, module invalidations, etc.).
+	 * Pass a no-op `() => {}` to silence all framework logs.
+	 * Defaults to `console.error` when omitted.
+	 */
+	readonly onFrameworkLog?: (message: string) => void;
 }
 
 export interface ServerHandle {
@@ -55,7 +57,8 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 	});
 
 	const repoRoot = opts.repoRoot ?? inferRepoRootFromManifest(manifest);
-	const loader = new ModuleLoader({ repoRoot, onLog: opts.onLog });
+	const onFrameworkLog = opts.onFrameworkLog ?? console.error;
+	const loader = new ModuleLoader({ repoRoot, onFrameworkLog });
 	const routes: string[] = [];
 
 	const sorted = sortRoutesBySpecificity(manifest.routes);
@@ -79,7 +82,6 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 		}
 
 		const handler = async (req: Request, res: Response): Promise<void> => {
-			const requestId = randomUUID();
 			try {
 				const apiPath = req.path || route.path;
 				let authContext: Record<string, string> = {};
@@ -91,16 +93,11 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 						httpMethod: route.method,
 						stage: manifest.stage,
 					});
-					const authCtx = { lambdaName: authorizer.lambdaFunctionName, requestId };
-					const authPatch = opts.logBus ? patchConsole({ ...authCtx, bus: opts.logBus }) : null;
-					let authResult: unknown;
-					try {
-						authResult = await lambdaLogStore.run(authCtx, () =>
-							authHandler(authEvent, lambdaContext(authorizer.lambdaFunctionName), () => {}),
-						);
-					} finally {
-						authPatch?.restore();
-					}
+					const authResult = await authHandler(
+						authEvent,
+						lambdaContext(authorizer.lambdaFunctionName),
+						() => {},
+					);
 					const decision = isAuthorizerAllow(authResult);
 					if (!decision.allow) {
 						res.status(403).json({ message: "Forbidden" });
@@ -118,24 +115,11 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 
 				applyLambdaEnv(lambda.environment);
 				const mainHandler = await loader.load(lambda);
-				const lambdaCtx = { lambdaName: lambda.lambdaFunctionName, requestId };
-				const patch = opts.logBus ? patchConsole({ ...lambdaCtx, bus: opts.logBus }) : null;
-				let out: APIGatewayProxyResult | undefined;
-				try {
-					out = (await lambdaLogStore.run(lambdaCtx, () =>
-						mainHandler(proxyEvent, lambdaContext(lambda.lambdaFunctionName), () => {}),
-					)) as APIGatewayProxyResult | undefined;
-				} finally {
-					patch?.restore();
-				}
-
-				opts.onLog?.({
-					level: "info",
-					source: "framework",
-					msg: `${route.method} ${route.path} → ${out?.statusCode ?? 200}`,
-					data: { requestId, lambdaName: lambda.lambdaFunctionName },
-				});
-
+				const out = (await mainHandler(
+					proxyEvent,
+					lambdaContext(lambda.lambdaFunctionName),
+					() => {},
+				)) as APIGatewayProxyResult | undefined;
 				sendProxyResult(res, out);
 			} catch (err) {
 				try {
@@ -143,14 +127,6 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 				} catch {
 					// ignored
 				}
-				const errMsg = err instanceof Error ? err.message : String(err);
-				const errStack = err instanceof Error ? err.stack : undefined;
-				opts.onLog?.({
-					level: "error",
-					source: "framework",
-					msg: `${route.method} ${route.path} error: ${errMsg}${errStack ? `\n${errStack}` : ""}`,
-					data: { requestId },
-				});
 				if (!res.headersSent) {
 					res.status(500).json({
 						message: err instanceof Error ? err.message : "Internal error",
@@ -180,7 +156,7 @@ export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle>
 				onReload: opts.onReload,
 				onManifestChange: opts.onManifestChange,
 				manifestPath: opts.manifestPath,
-				onLog: opts.onLog,
+				onFrameworkLog,
 			});
 		}
 	}

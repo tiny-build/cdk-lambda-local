@@ -2,7 +2,6 @@ node_modules/
 dist/
 cdk.out/
 data/
-manifest.json
+.cdk-local/
 *.js
 *.d.ts
-.cdk-local/
