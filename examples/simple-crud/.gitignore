@@ -5,3 +5,4 @@ data/
 manifest.json
 *.js
 *.d.ts
+.cdk-local/

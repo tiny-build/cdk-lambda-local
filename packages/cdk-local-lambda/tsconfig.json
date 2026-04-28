@@ -12,8 +12,11 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"types": ["node"]
+		"types": ["node"],
+		"jsx": "react",
+		"jsxFactory": "React.createElement",
+		"jsxFragmentFactory": "React.Fragment"
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "src/**/*.tsx"],
 	"exclude": ["dist", "node_modules", "**/*.test.ts"]
 }

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { LogEntry } from "../logger/log-bus";
 import type { LocalLambda, LocalManifest, LocalRoute } from "../types";
-
 import { normalizeEnv, splitHandler, stageKey } from "../utils/manifest";
 import { sortRecord } from "../utils/object";
 import type { CfnResources } from "./cfn-types";
@@ -16,6 +16,7 @@ export interface ExtractOptions {
 	readonly stage: string;
 	readonly repoRoot?: string;
 	readonly onWarning?: (message: string) => void;
+	readonly onLog?: (entry: Omit<LogEntry, "time">) => void;
 }
 
 export async function extractManifest(opts: ExtractOptions): Promise<LocalManifest> {
@@ -53,6 +54,7 @@ export async function extractManifest(opts: ExtractOptions): Promise<LocalManife
 			assetDir,
 			repoRoot,
 			onWarning: opts.onWarning,
+			onLog: opts.onLog,
 		});
 		lambdas[functionKey] = {
 			functionKey,
