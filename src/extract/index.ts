@@ -1,2 +1,2 @@
-export * from "./build-manifest.js";
-export type { ParsedMethod } from "./parse-routes.js";
+export * from "./build-manifest";
+export type { ParsedMethod } from "./parse-routes";

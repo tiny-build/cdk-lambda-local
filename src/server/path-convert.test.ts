@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { toExpressPath } from "./path-convert.js";
+import { toExpressPath } from "./path-convert";
 
 describe("toExpressPath", () => {
 	it("rewrites {id} to :id", () => {

@@ -3,13 +3,24 @@ import { isAbsolute, join, resolve } from "node:path";
 
 import { ENTRY_MARKER_RE } from "../constants/recover-entry";
 
+/** Options for {@link recoverEntry}. */
 export interface RecoverEntryOptions {
+	/** Absolute path to the CDK asset directory containing the bundled `index.js`. */
 	readonly assetDir: string;
+	/** Repository root used to resolve relative source paths found in the bundle. */
 	readonly repoRoot: string;
+	/** Called with non-fatal warnings when the entry file cannot be determined. */
 	readonly onWarning?: (message: string) => void;
+	/** Called with verbose framework log lines. */
 	readonly onFrameworkLog?: (message: string) => void;
 }
 
+/**
+ * Attempts to recover the original TypeScript entry file path from a CDK-bundled `index.js`.
+ *
+ * CDK embeds source-map markers in bundles. This function reads them and resolves the first
+ * marker that points to an existing file on disk. Falls back to `index.js` if none is found.
+ */
 export function recoverEntry(opts: RecoverEntryOptions): string {
 	const indexPath = join(opts.assetDir, "index.js");
 	const fallback = indexPath;

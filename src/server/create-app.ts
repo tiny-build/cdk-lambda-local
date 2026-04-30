@@ -8,26 +8,37 @@ import {
 	defaultWatchPaths,
 	inferRepoRootFromManifest,
 	sortRoutesBySpecificity,
-} from "../utils/local-app.js";
-import { buildProxyEvent, buildRequestAuthorizerEvent, lambdaContext } from "./apigateway-proxy.js";
-import { isAuthorizerAllow } from "./authorizer.js";
-import { startWatcher } from "./hot-reloader.js";
-import { ModuleLoader } from "./module-loader.js";
-import { toExpressPath } from "./path-convert.js";
-import { sendProxyResult } from "./response-writer.js";
+} from "../utils/local-app";
+import { buildProxyEvent, buildRequestAuthorizerEvent, lambdaContext } from "./apigateway-proxy";
+import { isAuthorizerAllow } from "./authorizer";
+import { startWatcher } from "./hot-reloader";
+import { ModuleLoader } from "./module-loader";
+import { toExpressPath } from "./path-convert";
+import { sendProxyResult } from "./response-writer";
 
+/** Options for {@link createLocalApp}. */
 export interface ServerOptions {
+	/** The manifest produced by {@link extractManifest}. Defines all routes and Lambdas. */
 	readonly manifest: LocalManifest;
-	/** When set with {@link onManifestChange}, this file is watched so topology edits can surface. */
+	/** When set with {@link ServerOptions.onManifestChange}, this file is watched so topology edits can surface. */
 	readonly manifestPath?: string;
+	/** Enable file-system watching and hot-reloading of Lambda handlers. Defaults to `true`. */
 	readonly watch?: boolean;
+	/** Override the directories watched for hot-reload. Defaults to the `src/` folder of each Lambda entry. */
 	readonly watchPaths?: readonly string[];
+	/** Repository root used when resolving module paths. Defaults to inference from `manifest.cdkOut`. */
 	readonly repoRoot?: string;
+	/** CORS configuration forwarded to the `cors` middleware. Defaults to `{ origin: true, credentials: true }`. */
 	readonly corsOptions?: CorsOptions;
+	/** Express body-parser size limit (e.g. `"10mb"`). Defaults to `"6mb"`. */
 	readonly bodyLimit?: string;
+	/** Path for the built-in health-check endpoint. Defaults to `"/__local/health"`. */
 	readonly healthPath?: string;
+	/** Called after a file change causes Lambda modules to be invalidated and reloaded. */
 	readonly onReload?: (changedPath: string, invalidatedCount: number) => void;
+	/** Called when a Lambda handler throws an unhandled error. Use for custom logging or alerting. */
 	readonly onError?: (err: unknown, req: Request) => void;
+	/** Called when the manifest file itself changes (requires `manifestPath` to be set). */
 	readonly onManifestChange?: (path: string) => void;
 	/**
 	 * Called for each framework-level log line (file changes, module invalidations, etc.).
@@ -37,12 +48,35 @@ export interface ServerOptions {
 	readonly onFrameworkLog?: (message: string) => void;
 }
 
+/** Handle returned by {@link createLocalApp} to inspect and shut down the server. */
 export interface ServerHandle {
+	/** The underlying Express application. Mount middleware or add routes before calling `app.listen()`. */
 	readonly app: Application;
+	/** List of registered routes in `"METHOD /path"` format. */
 	readonly routes: readonly string[];
+	/** Stops the file watcher and releases all resources. Does not close the HTTP server itself. */
 	readonly stop: () => Promise<void>;
 }
 
+/**
+ * Creates a local Express application that emulates API Gateway + Lambda from a {@link LocalManifest}.
+ *
+ * Each route in the manifest is mounted as an Express route. Incoming requests are converted
+ * into `APIGatewayProxyEvent` objects and dispatched to the corresponding Lambda handler.
+ * Optional custom authorizers run first and can short-circuit with a 403.
+ *
+ * Hot-reloading is enabled by default: when source files change, affected handlers are
+ * re-bundled and reloaded without restarting the process.
+ *
+ * @example
+ * ```ts
+ * import { createLocalApp } from "aws-cdk-local-lambda/server";
+ *
+ * const { app, routes, stop } = await createLocalApp({ manifest });
+ * const server = app.listen(3000, () => console.log("Listening on :3000"));
+ * // routes: ["GET /users", "POST /users", ...]
+ * ```
+ */
 export async function createLocalApp(opts: ServerOptions): Promise<ServerHandle> {
 	const { manifest } = opts;
 

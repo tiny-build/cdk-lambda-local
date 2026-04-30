@@ -3,9 +3,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import type { LocalManifest } from "../types.js";
+import type { LocalManifest } from "../types";
 
-import { createLocalApp } from "./create-app.js";
+import { createLocalApp } from "./create-app";
 
 function mkFn(body: string): string {
 	const dir = mkdtempSync(join(tmpdir(), "app-"));

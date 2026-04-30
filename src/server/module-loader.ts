@@ -10,11 +10,20 @@ import { findAncestorWithNodeModules, findNearestNamedFile } from "../utils/path
 
 let loadSeq = 0;
 
+/** Options for {@link ModuleLoader}. */
 export interface ModuleLoaderOptions {
+	/** Repository root used when locating `tsconfig.json` and `node_modules`. Defaults to `process.cwd()`. */
 	readonly repoRoot?: string;
+	/** Called with verbose framework log lines. Pass `() => {}` to silence them. */
 	readonly onFrameworkLog?: (message: string) => void;
 }
 
+/**
+ * Loads and caches Lambda handlers, bundling TypeScript source on demand via esbuild.
+ *
+ * Each handler is bundled once and cached by entry path. Call {@link invalidate} when
+ * source files change to evict stale handlers so they are rebundled on the next request.
+ */
 export class ModuleLoader {
 	private readonly cache = new Map<string, Promise<Handler>>();
 	private readonly deps = new Map<string, Set<string>>();
@@ -94,6 +103,11 @@ export class ModuleLoader {
 		};
 	}
 
+	/**
+	 * Loads (and caches) the handler function for the given Lambda.
+	 * TypeScript entry files are bundled with esbuild before import.
+	 * Throws if the named export cannot be found.
+	 */
 	async load(lambda: LocalLambda): Promise<Handler> {
 		const path = lambda.entry;
 		const cached = this.cache.get(path);
@@ -124,6 +138,11 @@ export class ModuleLoader {
 		return p;
 	}
 
+	/**
+	 * Evicts cached handlers that depend on `changedFile`.
+	 * If `changedFile` is omitted, the entire cache is cleared.
+	 * Returns the number of handlers invalidated.
+	 */
 	invalidate(changedFile?: string): number {
 		if (!changedFile) {
 			const count = this.cache.size;

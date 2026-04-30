@@ -1,6 +1,10 @@
-import { findLambdaLogicalIdInUri } from "../utils/cfn-uri.js";
-import type { CfnResources } from "./cfn-types.js";
+import { findLambdaLogicalIdInUri } from "../utils/cfn-uri";
+import type { CfnResources } from "./cfn-types";
 
+/**
+ * Scans CloudFormation resources for `AWS::ApiGateway::Authorizer` entries and returns a map
+ * from authorizer logical ID → Lambda logical ID.
+ */
 export function buildAuthorizerLambdaMap(resources: CfnResources): Map<string, string> {
 	const out = new Map<string, string>();
 	for (const [logicalId, res] of Object.entries(resources)) {

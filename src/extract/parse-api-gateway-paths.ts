@@ -1,9 +1,13 @@
-import { type CfnResources, isGetAtt, isRef } from "./cfn-types.js";
+import { type CfnResources, isGetAtt, isRef } from "./cfn-types";
 
 function isRootParent(parentId: unknown): boolean {
 	return isGetAtt(parentId) && parentId["Fn::GetAtt"][1] === "RootResourceId";
 }
 
+/**
+ * Walks the `AWS::ApiGateway::Resource` tree in a CloudFormation template and returns a map
+ * from each resource's logical ID to its resolved absolute path (e.g. `"/users/{id}"`).
+ */
 export function buildApiGatewayResourcePaths(resources: CfnResources): Map<string, string> {
 	const result = new Map<string, string>();
 

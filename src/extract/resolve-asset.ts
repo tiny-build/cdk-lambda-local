@@ -1,9 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+/** Options for {@link resolveAssetDir}. */
 export interface ResolveAssetOptions {
+	/** Absolute path to the CDK output directory. */
 	readonly cdkOut: string;
+	/** CloudFormation stack name (used to locate the `.assets.json` file). */
 	readonly stack: string;
+	/** Raw `Code.S3Key` value from the CloudFormation template — may be a string or `Fn::Sub` intrinsic. */
 	readonly codeS3Key: unknown;
 }
 
@@ -35,6 +39,12 @@ function extractHash(codeS3Key: unknown): string | null {
 	return m2?.[1] ?? null;
 }
 
+/**
+ * Resolves the absolute path to a Lambda asset directory from the CDK assets manifest.
+ *
+ * Extracts the asset hash from `Code.S3Key`, looks it up in `<stack>.assets.json`,
+ * and returns the path to the corresponding source directory inside `cdk.out`.
+ */
 export function resolveAssetDir(opts: ResolveAssetOptions): string {
 	const hash = extractHash(opts.codeS3Key);
 	if (!hash) {

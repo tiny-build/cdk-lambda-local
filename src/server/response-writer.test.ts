@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { sendProxyResult } from "./response-writer.js";
+import { sendProxyResult } from "./response-writer";
 
 function fakeRes() {
 	const headers: Record<string, string> = {};

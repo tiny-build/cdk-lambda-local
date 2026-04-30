@@ -1,3 +1,3 @@
-export * from "./extract/index.js";
-export * from "./server/index.js";
-export * from "./types.js";
+export * from "./extract/index";
+export * from "./server/index";
+export * from "./types";

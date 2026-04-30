@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseApiGatewayMethods } from "./parse-routes.js";
+import { parseApiGatewayMethods } from "./parse-routes";
 
 describe("parseApiGatewayMethods", () => {
 	const helloResources = {

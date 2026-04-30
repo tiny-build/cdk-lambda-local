@@ -102,5 +102,17 @@
   },
   "repository": {
     "url": "https://github.com/tiny-build/aws-cdk-local-lambda"
-  }
+  },
+  "keywords": [
+    "aws",
+    "cdk",
+    "lambda",
+    "local",
+    "api-gateway",
+    "express",
+    "serverless",
+    "aws-cdk",
+    "local-development",
+    "emulator"
+  ]
 }
