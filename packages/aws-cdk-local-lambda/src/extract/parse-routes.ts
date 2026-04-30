@@ -1,14 +1,23 @@
-import { findLambdaLogicalIdInUri } from "../utils/cfn-uri.js";
-import { type CfnResources, isRef } from "./cfn-types.js";
-import { buildApiGatewayResourcePaths } from "./parse-api-gateway-paths.js";
+import { findLambdaLogicalIdInUri } from "../utils/cfn-uri";
+import { type CfnResources, isRef } from "./cfn-types";
+import { buildApiGatewayResourcePaths } from "./parse-api-gateway-paths";
 
+/** An API Gateway method extracted from a CloudFormation template. */
 export interface ParsedMethod {
+	/** HTTP method in upper-case (e.g. `"GET"`). */
 	readonly httpMethod: string;
+	/** Full API Gateway path pattern (e.g. `"/users/{id}"`). */
 	readonly path: string;
+	/** CloudFormation logical ID of the Lambda backing this method. */
 	readonly lambdaLogicalId: string;
+	/** CloudFormation logical ID of the custom authorizer, or `null` if none. */
 	readonly authorizerLogicalId: string | null;
 }
 
+/**
+ * Scans CloudFormation resources and returns all `AWS::ApiGateway::Method` entries
+ * that use `AWS_PROXY` integration, resolved to their full paths.
+ */
 export function parseApiGatewayMethods(resources: CfnResources): ParsedMethod[] {
 	const paths = buildApiGatewayResourcePaths(resources);
 	const out: ParsedMethod[] = [];

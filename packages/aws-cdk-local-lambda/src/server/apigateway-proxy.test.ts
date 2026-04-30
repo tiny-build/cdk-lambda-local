@@ -2,7 +2,7 @@ import type { Request } from "express";
 
 import { describe, expect, it } from "vitest";
 
-import { buildProxyEvent, buildRequestAuthorizerEvent, lambdaContext } from "./apigateway-proxy.js";
+import { buildProxyEvent, buildRequestAuthorizerEvent, lambdaContext } from "./apigateway-proxy";
 
 function fakeReq(over: Partial<Request> = {}): Request {
 	return {
@@ -25,7 +25,7 @@ describe("apigateway event builders", () => {
 		});
 		expect(e.type).toBe("REQUEST");
 		expect(e.methodArn).toContain("/dev/GET/hello");
-		expect(e.headers["x-test"]).toBe("v");
+		expect(e.headers?.["x-test"]).toBe("v");
 	});
 
 	it("builds a proxy event and carries authorizer context", () => {

@@ -1,7 +1,7 @@
 import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
-import { createDynamoDBClient, errorResponse, getTableName, successResponse } from "./utils.js";
+import { createDynamoDBClient, errorResponse, getTableName, successResponse } from "./utils";
 
 const client = createDynamoDBClient();
 
@@ -25,7 +25,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 		if (!result.Item) {
 			return errorResponse(404, "Item not found");
 		}
-
 		return successResponse({
 			id: result.Item.id?.S,
 			title: result.Item.title?.S,

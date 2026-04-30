@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { LocalLambda, LocalManifest, LocalRoute } from "./types.js";
+import type { LocalLambda, LocalManifest, LocalRoute } from "./types";
 
 describe("LocalManifest types", () => {
 	it("LocalManifest shape accepts the minimal valid object", () => {

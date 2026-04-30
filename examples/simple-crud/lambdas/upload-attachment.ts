@@ -9,7 +9,7 @@ import {
 	getBucketName,
 	getTableName,
 	successResponse,
-} from "./utils.js";
+} from "./utils";
 
 const dynamodb = createDynamoDBClient();
 const s3 = createS3Client();

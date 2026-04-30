@@ -1,10 +1,20 @@
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { APIGatewayProxyEvent, Context, Handler } from "aws-lambda";
 import { describe, expect, it } from "vitest";
-import type { LocalLambda } from "../types.js";
+import type { LocalLambda } from "../types";
 
-import { ModuleLoader } from "./module-loader.js";
+import { ModuleLoader } from "./module-loader";
+
+/** Minimal stubs so a loaded {@link Handler} can be invoked like API Gateway does at runtime. */
+const stubEvent = {} as APIGatewayProxyEvent;
+const stubContext = {} as Context;
+const stubCallback: Parameters<Handler>[2] = () => {};
+
+async function invokeLoadedHandler(fn: Handler): Promise<unknown> {
+	return await Promise.resolve(fn(stubEvent, stubContext, stubCallback));
+}
 
 function makeLambda(entry: string, handler = "main"): LocalLambda {
 	return {
@@ -26,7 +36,7 @@ describe("ModuleLoader", () => {
 		writeFileSync(file, 'export const main = () => "v1";');
 		const ml = new ModuleLoader();
 		const fn = await ml.load(makeLambda(file));
-		expect((fn as () => string)()).toBe("v1");
+		expect(await invokeLoadedHandler(fn)).toBe("v1");
 		const fn2 = await ml.load(makeLambda(file));
 		expect(fn2).toBe(fn);
 	});
@@ -45,11 +55,11 @@ describe("ModuleLoader", () => {
 		writeFileSync(file, 'export const main = () => "v1";');
 		const ml = new ModuleLoader();
 		const fn1 = await ml.load(makeLambda(file));
-		expect((fn1 as () => string)()).toBe("v1");
+		expect(await invokeLoadedHandler(fn1)).toBe("v1");
 		writeFileSync(file, 'export const main = () => "v2";');
 		const cleared = ml.invalidate();
 		expect(cleared).toBe(1);
 		const fn2 = await ml.load(makeLambda(file));
-		expect((fn2 as () => string)()).toBe("v2");
+		expect(await invokeLoadedHandler(fn2)).toBe("v2");
 	});
 });

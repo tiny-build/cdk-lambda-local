@@ -20,8 +20,6 @@ No handler registry. No mocks. Hot reload on save.
 ![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-f99933?style=for-the-badge&logo=awslambda&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-7fc5e1?style=for-the-badge&logo=express&logoColor=white)
 ![esbuild](https://img.shields.io/badge/esbuild-fed11e?style=for-the-badge&logo=esbuild&logoColor=black)
-![Pino](https://img.shields.io/badge/Pino-7fc5e1?style=for-the-badge&logo=pino&logoColor=white)
-![Ink](https://img.shields.io/badge/Ink-7fc5e1?style=for-the-badge&logo=react&logoColor=white)
 ![Commander](https://img.shields.io/badge/Commander-fed11e?style=for-the-badge&logoColor=black)
 ![chokidar](https://img.shields.io/badge/chokidar-7fc5e1?style=for-the-badge&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-fed11e?style=for-the-badge&logo=vitest&logoColor=black)

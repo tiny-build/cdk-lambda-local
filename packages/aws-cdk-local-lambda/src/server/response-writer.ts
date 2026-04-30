@@ -1,6 +1,10 @@
 import type { APIGatewayProxyResult } from "aws-lambda";
 import type { Response } from "express";
 
+/**
+ * Writes an `APIGatewayProxyResult` to an Express `Response`.
+ * Responds with 502 if the Lambda returned `undefined`.
+ */
 export function sendProxyResult(res: Response, result: APIGatewayProxyResult | undefined): void {
 	if (!result) {
 		res.status(502).send("Empty Lambda response");

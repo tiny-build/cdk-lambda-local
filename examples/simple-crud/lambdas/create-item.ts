@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
-import { createDynamoDBClient, errorResponse, getTableName, successResponse } from "./utils.js";
+import { createDynamoDBClient, errorResponse, getTableName, successResponse } from "./utils";
 
 const client = createDynamoDBClient();
 
