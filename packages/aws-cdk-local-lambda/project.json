@@ -23,6 +23,12 @@
 			"options": {
 				"cwd": "packages/aws-cdk-local-lambda"
 			}
+		},
+		"test": {
+			"command": "pnpm test",
+			"options": {
+				"cwd": "packages/aws-cdk-local-lambda"
+			}
 		}
 	}
 }

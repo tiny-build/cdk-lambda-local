@@ -6,8 +6,9 @@ import {
 	lowerCaseHeaderMap,
 	pathParamsFromRequest,
 	queryFromRequest,
-} from "../utils/request-shape.js";
+} from "../utils/request-shape";
 
+/** Builds the `APIGatewayRequestAuthorizerEvent` passed to a custom authorizer Lambda. */
 export function buildRequestAuthorizerEvent(
 	req: Request,
 	opts: {
@@ -53,6 +54,7 @@ export function buildRequestAuthorizerEvent(
 	};
 }
 
+/** Builds the `APIGatewayProxyEvent` passed to a Lambda handler, including any authorizer context. */
 export function buildProxyEvent(
 	req: Request,
 	opts: {
@@ -101,6 +103,7 @@ export function buildProxyEvent(
 	};
 }
 
+/** Creates a minimal mock Lambda `Context` object for local invocations. */
 export function lambdaContext(functionName: string): Context {
 	return {
 		callbackWaitsForEmptyEventLoop: false,

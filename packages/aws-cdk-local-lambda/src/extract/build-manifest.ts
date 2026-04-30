@@ -10,15 +10,36 @@ import { parseApiGatewayMethods } from "./parse-routes";
 import { recoverEntry } from "./recover-entry";
 import { resolveAssetDir } from "./resolve-asset";
 
+/** Options for {@link extractManifest}. */
 export interface ExtractOptions {
+	/** Absolute path to the CDK output directory (e.g. `path.resolve("cdk.out")`). */
 	readonly cdkOut: string;
+	/** CloudFormation stack name to parse (must match the synthesised template filename). */
 	readonly stack: string;
+	/** Optional stage name; strips the `-<stage>-` infix from Lambda function names to produce stable keys. */
 	readonly stage?: string;
+	/** Repository root used when recovering TypeScript entry paths. Defaults to `process.cwd()`. */
 	readonly repoRoot?: string;
+	/** Called with non-fatal warning messages (e.g. env vars that couldn't be normalised). */
 	readonly onWarning?: (message: string) => void;
+	/** Called with verbose framework log lines. Pass `() => {}` to silence them. */
 	readonly onFrameworkLog?: (message: string) => void;
 }
 
+/**
+ * Parses a CDK-synthesised CloudFormation template and produces a {@link LocalManifest}
+ * describing every Lambda function and API Gateway route in the stack.
+ *
+ * @example
+ * ```ts
+ * import { extractManifest } from "aws-cdk-local-lambda/extract";
+ *
+ * const manifest = await extractManifest({
+ *   cdkOut: path.resolve("cdk.out"),
+ *   stack: "MyStack",
+ * });
+ * ```
+ */
 export async function extractManifest(opts: ExtractOptions): Promise<LocalManifest> {
 	const repoRoot = opts.repoRoot ?? process.cwd();
 	const templatePath = join(opts.cdkOut, `${opts.stack}.template.json`);

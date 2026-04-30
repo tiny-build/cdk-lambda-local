@@ -1,9 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - develop
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,7 +9,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Lint, Typecheck, Build
+    name: Lint, Typecheck, Build, Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,12 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Set Nx base
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "NX_BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
-          else
-            echo "NX_BASE=${{ github.event.before }}" >> $GITHUB_ENV
-          fi
+        run: echo "NX_BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
 
       - name: Lint
         run: pnpx nx affected --target=lint --base=$NX_BASE --head=HEAD
@@ -49,3 +42,6 @@ jobs:
 
       - name: Build
         run: pnpx nx affected --target=build --base=$NX_BASE --head=HEAD
+
+      - name: Test aws-cdk-local-lambda
+        run: pnpm --filter aws-cdk-local-lambda test

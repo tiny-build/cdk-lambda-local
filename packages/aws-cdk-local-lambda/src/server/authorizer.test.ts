@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isAuthorizerAllow } from "./authorizer.js";
+import { isAuthorizerAllow } from "./authorizer";
 
 describe("isAuthorizerAllow", () => {
 	it("allows single-statement Allow", () => {

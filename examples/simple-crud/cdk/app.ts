@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { SimpleCrudStack } from "./simple-crud-stack.js";
+import { SimpleCrudStack } from "./simple-crud-stack";
 
 const app = new cdk.App();
 

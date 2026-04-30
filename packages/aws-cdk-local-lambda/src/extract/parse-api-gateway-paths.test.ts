@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildApiGatewayResourcePaths } from "./parse-api-gateway-paths.js";
+import { buildApiGatewayResourcePaths } from "./parse-api-gateway-paths";
 
 describe("buildApiGatewayResourcePaths", () => {
 	it("builds /hello from root + child resource", () => {

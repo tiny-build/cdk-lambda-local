@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildAuthorizerLambdaMap } from "./parse-authorizers.js";
+import { buildAuthorizerLambdaMap } from "./parse-authorizers";
 
 describe("buildAuthorizerLambdaMap", () => {
 	it("maps authorizer logical id to its lambda logical id", () => {

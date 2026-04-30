@@ -1,3 +1,8 @@
+/**
+ * Extracts the Lambda logical resource ID from a CloudFormation `AuthorizerUri` or `Integration.Uri` value.
+ *
+ * Handles both `Fn::GetAtt: [LogicalId, Arn]` and `Fn::Join` intrinsics. Returns `null` if no ID is found.
+ */
 export function findLambdaLogicalIdInUri(uri: unknown): string | null {
 	if (uri === null || uri === undefined) return null;
 

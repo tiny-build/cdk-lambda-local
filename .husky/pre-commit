@@ -1,1 +1,3 @@
 pnpx nano-staged
+pnpm --filter aws-cdk-local-lambda build
+pnpm --filter aws-cdk-local-lambda test

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { recoverEntry } from "./recover-entry.js";
+import { recoverEntry } from "./recover-entry";
 
 function makeAsset(indexJs: string, fsLayout: Record<string, string>) {
 	const root = mkdtempSync(join(tmpdir(), "recover-entry-"));
