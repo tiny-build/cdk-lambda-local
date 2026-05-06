@@ -1,21 +1,25 @@
-import { randomBytes } from "node:crypto";
-import { mkdirSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, join, normalize } from "node:path";
-import { pathToFileURL } from "node:url";
-import type { Handler } from "aws-lambda";
-import { buildSync } from "esbuild";
-import type { LocalLambda } from "../types";
+import type { LocalLambda } from '../types';
+import type { Handler } from 'aws-lambda';
 
-import { findAncestorWithNodeModules, findNearestNamedFile } from "../utils/path-search";
+import { buildSync } from 'esbuild';
+import { randomBytes } from 'node:crypto';
+import { mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { dirname, join, normalize } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import {
+  findAncestorWithNodeModules,
+  findNearestNamedFile
+} from '../utils/path-search';
 
 let loadSeq = 0;
 
 /** Options for {@link ModuleLoader}. */
 export interface ModuleLoaderOptions {
-	/** Repository root used when locating `tsconfig.json` and `node_modules`. Defaults to `process.cwd()`. */
-	readonly repoRoot?: string;
-	/** Called with verbose framework log lines. Pass `() => {}` to silence them. */
-	readonly onFrameworkLog?: (message: string) => void;
+  /** Repository root used when locating `tsconfig.json` and `node_modules`. Defaults to `process.cwd()`. */
+  readonly repoRoot?: string;
+  /** Called with verbose framework log lines. Pass `() => {}` to silence them. */
+  readonly onFrameworkLog?: (message: string) => void;
 }
 
 /**
@@ -25,145 +29,157 @@ export interface ModuleLoaderOptions {
  * source files change to evict stale handlers so they are rebundled on the next request.
  */
 export class ModuleLoader {
-	private readonly cache = new Map<string, Promise<Handler>>();
-	private readonly deps = new Map<string, Set<string>>();
-	private readonly repoRoot: string;
-	private readonly onFrameworkLog: (message: string) => void;
+  private readonly cache = new Map<string, Promise<Handler>>();
+  private readonly deps = new Map<string, Set<string>>();
+  private readonly repoRoot: string;
+  private readonly onFrameworkLog: (message: string) => void;
 
-	constructor(opts?: ModuleLoaderOptions) {
-		this.repoRoot = opts?.repoRoot ?? process.cwd();
-		this.onFrameworkLog = opts?.onFrameworkLog ?? console.error;
-	}
+  constructor(opts?: ModuleLoaderOptions) {
+    this.repoRoot = opts?.repoRoot ?? process.cwd();
+    this.onFrameworkLog = opts?.onFrameworkLog ?? console.error;
+  }
 
-	private async bundleAndImportTs(
-		absPath: string,
-	): Promise<{ mod: Record<string, unknown>; deps: Set<string> }> {
-		const tsconfig = findNearestNamedFile(absPath, "tsconfig.json");
-		if (!tsconfig) {
-			throw new Error(
-				"bundleAndImportTs requires a tsconfig.json on the path from the handler file",
-			);
-		}
-		const absWorkingDir = dirname(tsconfig);
-		const result = buildSync({
-			entryPoints: [absPath],
-			absWorkingDir,
-			bundle: true,
-			platform: "node",
-			format: "esm",
-			target: "node22",
-			tsconfig,
-			packages: "external",
-			write: false,
-			metafile: true,
-			logLevel: "silent",
-		});
-		const code = result.outputFiles?.[0]?.text;
-		if (!code) {
-			throw new Error("esbuild produced no output for local handler bundle");
-		}
-		const deps = new Set(
-			Object.keys(result.metafile?.inputs ?? {}).map((f) => normalize(join(absWorkingDir, f))),
-		);
-		const cacheBase = findAncestorWithNodeModules(absPath) ?? this.repoRoot;
-		const cacheDir = join(cacheBase, "node_modules", ".cache", "aws-cdk-local-lambda");
-		mkdirSync(cacheDir, { recursive: true });
-		const tmp = join(
-			cacheDir,
-			`bundle-${Date.now()}-${++loadSeq}-${randomBytes(8).toString("hex")}.mjs`,
-		);
-		writeFileSync(tmp, code, "utf8");
-		try {
-			const mod = (await import(pathToFileURL(tmp).href)) as Record<string, unknown>;
-			return { mod, deps };
-		} finally {
-			try {
-				unlinkSync(tmp);
-			} catch {
-				// best-effort
-			}
-		}
-	}
+  private async bundleAndImportTs(
+    absPath: string
+  ): Promise<{ mod: Record<string, unknown>; deps: Set<string> }> {
+    const tsconfig = findNearestNamedFile(absPath, 'tsconfig.json');
+    if (!tsconfig) {
+      throw new Error(
+        'bundleAndImportTs requires a tsconfig.json on the path from the handler file'
+      );
+    }
+    const absWorkingDir = dirname(tsconfig);
+    const result = buildSync({
+      entryPoints: [absPath],
+      absWorkingDir,
+      bundle: true,
+      platform: 'node',
+      format: 'esm',
+      target: 'node22',
+      tsconfig,
+      packages: 'external',
+      write: false,
+      metafile: true,
+      logLevel: 'silent'
+    });
+    const code = result.outputFiles?.[0]?.text;
+    if (!code) {
+      throw new Error('esbuild produced no output for local handler bundle');
+    }
+    const deps = new Set(
+      Object.keys(result.metafile?.inputs ?? {}).map(f =>
+        normalize(join(absWorkingDir, f))
+      )
+    );
+    const cacheBase = findAncestorWithNodeModules(absPath) ?? this.repoRoot;
+    const cacheDir = join(
+      cacheBase,
+      'node_modules',
+      '.cache',
+      'aws-cdk-local-lambda'
+    );
+    mkdirSync(cacheDir, { recursive: true });
+    const tmp = join(
+      cacheDir,
+      `bundle-${Date.now()}-${++loadSeq}-${randomBytes(8).toString('hex')}.mjs`
+    );
+    writeFileSync(tmp, code, 'utf8');
+    try {
+      const mod = (await import(pathToFileURL(tmp).href)) as Record<
+        string,
+        unknown
+      >;
+      return { mod, deps };
+    } finally {
+      try {
+        unlinkSync(tmp);
+      } catch {
+        // best-effort
+      }
+    }
+  }
 
-	private async importModule(
-		path: string,
-	): Promise<{ mod: Record<string, unknown>; deps: Set<string> }> {
-		const isTs = path.endsWith(".ts") || path.endsWith(".tsx");
-		if (isTs) {
-			try {
-				return await this.bundleAndImportTs(path);
-			} catch {
-				// fall through to direct import
-			}
-		}
-		const url = `${pathToFileURL(path).href}?t=${Date.now()}-${++loadSeq}`;
-		return {
-			mod: (await import(url)) as Record<string, unknown>,
-			deps: new Set([path]),
-		};
-	}
+  private async importModule(
+    path: string
+  ): Promise<{ mod: Record<string, unknown>; deps: Set<string> }> {
+    const isTs = path.endsWith('.ts') || path.endsWith('.tsx');
+    if (isTs) {
+      try {
+        return await this.bundleAndImportTs(path);
+      } catch {
+        // fall through to direct import
+      }
+    }
+    const url = `${pathToFileURL(path).href}?t=${Date.now()}-${++loadSeq}`;
+    return {
+      mod: (await import(url)) as Record<string, unknown>,
+      deps: new Set([path])
+    };
+  }
 
-	/**
-	 * Loads (and caches) the handler function for the given Lambda.
-	 * TypeScript entry files are bundled with esbuild before import.
-	 * Throws if the named export cannot be found.
-	 */
-	async load(lambda: LocalLambda): Promise<Handler> {
-		const path = lambda.entry;
-		const cached = this.cache.get(path);
-		if (cached) return cached;
+  /**
+   * Loads (and caches) the handler function for the given Lambda.
+   * TypeScript entry files are bundled with esbuild before import.
+   * Throws if the named export cannot be found.
+   */
+  async load(lambda: LocalLambda): Promise<Handler> {
+    const path = lambda.entry;
+    const cached = this.cache.get(path);
+    if (cached) return cached;
 
-		const p = (async () => {
-			const { mod, deps } = await this.importModule(path);
-			this.deps.set(path, deps);
-			const direct = mod[lambda.handler];
-			const viaDefault =
-				typeof mod.default === "object" && mod.default !== null
-					? (mod.default as Record<string, unknown>)[lambda.handler]
-					: undefined;
-			const fn = direct ?? viaDefault;
-			if (typeof fn !== "function") {
-				throw new Error(`Handler "${lambda.handler}" not exported by ${path}`);
-			}
-			return fn as Handler;
-		})();
-		this.cache.set(path, p);
-		try {
-			await p;
-		} catch (e) {
-			this.cache.delete(path);
-			this.deps.delete(path);
-			throw e;
-		}
-		return p;
-	}
+    const p = (async () => {
+      const { mod, deps } = await this.importModule(path);
+      this.deps.set(path, deps);
+      const direct = mod[lambda.handler];
+      const viaDefault =
+        typeof mod.default === 'object' && mod.default !== null
+          ? (mod.default as Record<string, unknown>)[lambda.handler]
+          : undefined;
+      const fn = direct ?? viaDefault;
+      if (typeof fn !== 'function') {
+        throw new Error(`Handler "${lambda.handler}" not exported by ${path}`);
+      }
+      return fn as Handler;
+    })();
+    this.cache.set(path, p);
+    try {
+      await p;
+    } catch (e) {
+      this.cache.delete(path);
+      this.deps.delete(path);
+      throw e;
+    }
+    return p;
+  }
 
-	/**
-	 * Evicts cached handlers that depend on `changedFile`.
-	 * If `changedFile` is omitted, the entire cache is cleared.
-	 * Returns the number of handlers invalidated.
-	 */
-	invalidate(changedFile?: string): number {
-		if (!changedFile) {
-			const count = this.cache.size;
-			this.cache.clear();
-			this.deps.clear();
-			return count;
-		}
+  /**
+   * Evicts cached handlers that depend on `changedFile`.
+   * If `changedFile` is omitted, the entire cache is cleared.
+   * Returns the number of handlers invalidated.
+   */
+  invalidate(changedFile?: string): number {
+    if (!changedFile) {
+      const count = this.cache.size;
+      this.cache.clear();
+      this.deps.clear();
+      return count;
+    }
 
-		const normalized = normalize(changedFile);
-		this.onFrameworkLog(`[cdk-local] invalidating modules dependent on ${normalized}`);
-		let count = 0;
-		for (const [handlerPath, fileDeps] of this.deps) {
-			if (fileDeps.has(normalized)) {
-				this.cache.delete(handlerPath);
-				this.deps.delete(handlerPath);
-				count++;
-				this.onFrameworkLog(
-					`[cdk-local] invalidating handler "${handlerPath}" (changed: ${normalized})`,
-				);
-			}
-		}
-		return count;
-	}
+    const normalized = normalize(changedFile);
+    this.onFrameworkLog(
+      `[cdk-local] invalidating modules dependent on ${normalized}`
+    );
+    let count = 0;
+    for (const [handlerPath, fileDeps] of this.deps) {
+      if (fileDeps.has(normalized)) {
+        this.cache.delete(handlerPath);
+        this.deps.delete(handlerPath);
+        count++;
+        this.onFrameworkLog(
+          `[cdk-local] invalidating handler "${handlerPath}" (changed: ${normalized})`
+        );
+      }
+    }
+    return count;
+  }
 }
