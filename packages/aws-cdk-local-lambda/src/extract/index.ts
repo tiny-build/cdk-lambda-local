@@ -1,2 +1,2 @@
-export * from "./build-manifest";
-export type { ParsedMethod } from "./parse-routes";
+export * from './build-manifest';
+export type { ParsedMethod } from './parse-routes';
