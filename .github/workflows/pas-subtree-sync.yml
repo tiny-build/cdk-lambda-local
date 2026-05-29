@@ -1,0 +1,79 @@
+# .github/workflows/pas-subtree-sync.yml
+
+name: Create PR from PAS subtree sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      sync_branch:
+        description: "PAS subtree sync branch"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tiny-build main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fetch PAS subtree branch
+        run: |
+          git fetch origin "${{ inputs.sync_branch }}:pas-subtree-sync"
+
+      - name: Copy subtree contents into package folder
+        run: |
+          rm -rf /tmp/pas-package
+          mkdir -p /tmp/pas-package
+
+          git archive pas-subtree-sync | tar -x -C /tmp/pas-package
+
+          rm -rf packages/aws-cdk-local-lambda
+          mkdir -p packages/aws-cdk-local-lambda
+
+          rsync -a --delete \
+            --exclude 'README.md' \
+            --exclude 'CHANGELOG.md' \
+            /tmp/pas-package/ packages/aws-cdk-local-lambda/
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet -- packages/aws-cdk-local-lambda; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes found. Skipping PR."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create or update PR
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: pr/pas/aws-cdk-local-lambda
+          delete-branch: true
+          title: "Sync aws-cdk-local-lambda from external repository"
+          commit-message: "Sync aws-cdk-local-lambda from external repository"
+          committer: "math <mxthxngx@gmail.com>"
+          body: |
+            Automated sync from external repository.
+
+            Source branch:
+
+            `${{ inputs.sync_branch }}`
+          labels: |
+            automated
+            subtree-sync
+      - name: Delete PAS sync branch
+        if: always()
+        run: |
+            echo "Deleting branch ${{ inputs.sync_branch }}"
+            git push origin --delete "${{ inputs.sync_branch }}" || echo "Branch already deleted or not found"
